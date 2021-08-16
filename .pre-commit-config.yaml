@@ -1,0 +1,19 @@
+---
+# # Install pre-commit hooks via
+# pre-commit install
+
+repos:
+- repo: https://github.com/pycqa/isort
+  rev: 5.9.3
+  hooks:
+  - id: isort
+    name: isort (python)
+- repo: https://github.com/ambv/black
+  rev: 21.7b0
+  hooks:
+  - id: black
+- repo: https://gitlab.com/pycqa/flake8
+  rev: 3.9.2
+  hooks:
+  - id: flake8
+    additional_dependencies: ["flake8-bugbear"]
