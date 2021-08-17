@@ -6,9 +6,10 @@ authors = ["Tiziano Müller <tiziano.mueller@chem.uzh.ch>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9,<3.11"
 regex = "^2021"
 click = "^7"
+numpy = "^1.21.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
