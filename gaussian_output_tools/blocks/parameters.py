@@ -6,7 +6,7 @@ from typing import Iterator, List, Optional, Tuple, Union
 
 import regex as re
 
-from . import Match
+from . import UREG, Match
 
 PARAMETERS_MATCH = re.compile(
     r"""
@@ -42,7 +42,16 @@ class ParameterEntry:
         except ValueError:
             pass
 
-        return cls(name, definition, Decimal(value), derivinfo)
+        if definition.startswith(("R", "B")):
+            unit = UREG.angstrom
+        elif definition.startswith(("A", "D", "L")):
+            unit = UREG.degree
+        else:
+            raise AssertionError(
+                f"unknown structural parameter definition: {definition}"
+            )
+
+        return cls(name, definition, Decimal(value) * unit, derivinfo)
 
 
 @dataclass

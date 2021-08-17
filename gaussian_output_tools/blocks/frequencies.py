@@ -7,7 +7,7 @@ import numpy as np
 import numpy.typing as npt
 import regex as re
 
-from . import Match
+from . import UREG, Match
 
 FREQUENCY_MATCH = re.compile(
     r"""
@@ -35,7 +35,7 @@ FREQUENCY_MATCH = re.compile(
 class Frequencies:
     freqs: List[Decimal]
     red_masses: List[Decimal]
-    fract_consts: List[Decimal]
+    force_constants: List[Decimal]
     ir_intensities: List[Decimal]
     atomic_numbers: List[int]
     names: List[str]
@@ -66,10 +66,16 @@ def match_frequencies(
 
         yield Match(
             data=Frequencies(
-                [Decimal(v) for v in match.captures("freq")],
-                [Decimal(v) for v in match.captures("mass")],
-                [Decimal(v) for v in match.captures("frcc")],
-                [Decimal(v) for v in match.captures("intens")],
+                [Decimal(v) * UREG.cm ** -1 for v in match.captures("freq")],
+                [Decimal(v) * UREG.u for v in match.captures("mass")],
+                [
+                    Decimal(v) * UREG.millidyne / UREG.angstrom
+                    for v in match.captures("frcc")
+                ],
+                [
+                    Decimal(v) * UREG.kilometer / UREG.mole
+                    for v in match.captures("intens")
+                ],
                 [int(a) for a in match.captures("an")[:natoms]],
                 match.captures("name"),
                 normal_coords,

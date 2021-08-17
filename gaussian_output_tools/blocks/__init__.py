@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, List, Tuple, Union
 
+import pint
+
 
 @dataclass
 class Match:
@@ -23,3 +25,7 @@ def merged_spans(spans: List[Tuple[int, int]]):
 
     del merged[0]
     return merged
+
+
+# define global unit registry for all blocks
+UREG = pint.UnitRegistry()

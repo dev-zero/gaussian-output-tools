@@ -4,7 +4,7 @@ from typing import Iterator, List, Optional
 
 import regex as re
 
-from . import Match
+from . import UREG, Match
 
 DIPOLE_MATCH = re.compile(
     r"""
@@ -17,7 +17,7 @@ DIPOLE_MATCH = re.compile(
 (?:.+\n){2}
 (?:\s* (?P<direction>\w+) (?:\s+ (?P<val>\S+)){3} \n)+
 \n
-\ Dipole\ polarizability,\ (?P<spin>\w+)\ .+\n
+\ Dipole\ polarizability.+\n
 (?:.+\n){3}
 (?:\s* (?P<pdirection>\w+) (?:\s+ (?P<pval>\S+)){3} \n)+
 """,
@@ -47,7 +47,6 @@ class Moment:
 class Polarizability:
     """Dipole polarizability in a.u."""
 
-    spin: str
     iso: Decimal
     aniso: Decimal
     xx: Decimal
@@ -87,11 +86,16 @@ def match_dipole(
             atom_orientation = None
 
         moment = Moment(
-            *(Decimal(v.replace("D", "E")) for v in match.captures("val")[::3])
+            *(
+                Decimal(v.replace("D", "E")) * UREG.e * UREG.bohr
+                for v in match.captures("val")[::3]
+            )
         )
         polarizability = Polarizability(
-            match["spin"],
-            *(Decimal(val.replace("D", "E")) for val in match.captures("pval")[::3]),
+            *(
+                Decimal(val.replace("D", "E")) * UREG.bohr ** 3 * UREG.angstrom ** 3
+                for val in match.captures("pval")[::3]
+            ),
         )
 
         yield Match(
