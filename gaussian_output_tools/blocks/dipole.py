@@ -62,8 +62,8 @@ class Dipole:
     polarizability: Polarizability
 
 
-def match_dipole(content: str) -> Iterator[Dipole]:
-    for match in DIPOLE_MATCH.finditer(content):
+def match_dipole(content: str, start: Optional[int] = None, end: Optional[int] = None) -> Iterator[Dipole]:
+    for match in DIPOLE_MATCH.finditer(content, start, end):
 
         if match.captures("oval"):
             coord_len = len(match.captures("oval"))

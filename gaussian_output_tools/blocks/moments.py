@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, Iterator
+from typing import Dict, Iterator, Optional
 
 import regex as re
 
@@ -25,8 +25,8 @@ class Moment:
     vals: Dict[str, Decimal]
 
 
-def match_moments(content: str) -> Iterator[Moment]:
-    for match in MOMENT_MATCH.finditer(content):
+def match_moments(content: str, start: Optional[int] = None, end: Optional[int] = None) -> Iterator[Moment]:
+    for match in MOMENT_MATCH.finditer(content, start, end):
         yield Match(
             data=Moment(
                 type=match["type"],
