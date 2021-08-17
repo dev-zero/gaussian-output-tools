@@ -1,6 +1,8 @@
+from __future__ import annotations  # will be default in Python 3.10
+
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Iterator, List, Optional, Tuple, TypeVar, Union
+from typing import Iterator, List, Optional, Tuple, Union
 
 import regex as re
 
@@ -23,9 +25,6 @@ PARAMETERS_MATCH = re.compile(
 )
 
 
-_T = TypeVar("ParameterEntry")
-
-
 @dataclass
 class ParameterEntry:
     name: str
@@ -34,7 +33,9 @@ class ParameterEntry:
     derivative_info: Union[Tuple[str, Decimal], str]
 
     @classmethod
-    def from_match(cls, name, definition, value, derivinfo) -> _T:
+    def from_match(
+        cls, name: str, definition: str, value: str, derivinfo: str
+    ) -> ParameterEntry:
         try:
             deriv, val = derivinfo.split("=")
             derivinfo = (deriv.strip(), Decimal(val))
@@ -52,7 +53,7 @@ class Parameters:
 
 def match_parameters(
     content: str, start: Optional[int] = None, end: Optional[int] = None
-) -> Iterator[Parameters]:
+) -> Iterator[Match]:
     for match in PARAMETERS_MATCH.finditer(content, start, end):
         yield Match(
             data=Parameters(

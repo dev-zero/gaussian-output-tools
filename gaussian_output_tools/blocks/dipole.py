@@ -68,7 +68,7 @@ class Dipole:
 
 def match_dipole(
     content: str, start: Optional[int] = None, end: Optional[int] = None
-) -> Iterator[Dipole]:
+) -> Iterator[Match]:
     for match in DIPOLE_MATCH.finditer(content, start, end):
 
         if match.captures("oval"):

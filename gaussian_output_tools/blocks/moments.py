@@ -27,7 +27,7 @@ class Moment:
 
 def match_moments(
     content: str, start: Optional[int] = None, end: Optional[int] = None
-) -> Iterator[Moment]:
+) -> Iterator[Match]:
     for match in MOMENT_MATCH.finditer(content, start, end):
         yield Match(
             data=Moment(

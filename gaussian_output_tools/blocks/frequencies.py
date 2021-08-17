@@ -44,7 +44,7 @@ class Frequencies:
 
 def match_frequencies(
     content: str, start: Optional[int] = None, end: Optional[int] = None
-) -> Iterator[Frequencies]:
+) -> Iterator[Match]:
     for match in FREQUENCY_MATCH.finditer(content, start, end):
         natoms = max(int(n) for n in match.captures("idx"))
         ncols = int(
