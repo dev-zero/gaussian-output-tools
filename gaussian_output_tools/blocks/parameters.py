@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Iterator, List, Tuple, TypeVar, Union, Optional
+from typing import Iterator, List, Optional, Tuple, TypeVar, Union
 
 import regex as re
 
@@ -50,7 +50,9 @@ class Parameters:
     entries: List[ParameterEntry]
 
 
-def match_parameters(content: str, start: Optional[int] = None, end: Optional[int] = None) -> Iterator[Parameters]:
+def match_parameters(
+    content: str, start: Optional[int] = None, end: Optional[int] = None
+) -> Iterator[Parameters]:
     for match in PARAMETERS_MATCH.finditer(content, start, end):
         yield Match(
             data=Parameters(

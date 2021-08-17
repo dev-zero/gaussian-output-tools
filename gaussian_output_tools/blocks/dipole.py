@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Iterator, Optional, List
+from typing import Iterator, List, Optional
 
 import regex as re
 
@@ -24,6 +24,7 @@ DIPOLE_MATCH = re.compile(
     re.VERBOSE | re.MULTILINE,
 )
 
+
 @dataclass
 class AtomCoords:
     nr: int
@@ -35,14 +36,17 @@ class AtomCoords:
 @dataclass
 class Moment:
     """Electric dipole moment in a.u."""
+
     tot: Decimal
     x: Decimal
     y: Decimal
     z: Decimal
 
+
 @dataclass
 class Polarizability:
     """Dipole polarizability in a.u."""
+
     spin: str
     iso: Decimal
     aniso: Decimal
@@ -62,17 +66,33 @@ class Dipole:
     polarizability: Polarizability
 
 
-def match_dipole(content: str, start: Optional[int] = None, end: Optional[int] = None) -> Iterator[Dipole]:
+def match_dipole(
+    content: str, start: Optional[int] = None, end: Optional[int] = None
+) -> Iterator[Dipole]:
     for match in DIPOLE_MATCH.finditer(content, start, end):
 
         if match.captures("oval"):
             coord_len = len(match.captures("oval"))
-            atom_orientation = [AtomCoords(int(oanr), *(Decimal(v) for v in oval)) for oanr, oval in zip(match.captures("oanr"), (match.captures("oval")[idx:idx+3] for idx in range(0, coord_len, 3)))]
+            atom_orientation = [
+                AtomCoords(int(oanr), *(Decimal(v) for v in oval))
+                for oanr, oval in zip(
+                    match.captures("oanr"),
+                    (
+                        match.captures("oval")[idx : idx + 3]
+                        for idx in range(0, coord_len, 3)
+                    ),
+                )
+            ]
         else:
             atom_orientation = None
 
-        moment = Moment(*(Decimal(v.replace("D", "E")) for v in match.captures("val")[::3]))
-        polarizability = Polarizability(match["spin"], *(Decimal(val.replace("D", "E")) for val in match.captures("pval")[::3]))
+        moment = Moment(
+            *(Decimal(v.replace("D", "E")) for v in match.captures("val")[::3])
+        )
+        polarizability = Polarizability(
+            match["spin"],
+            *(Decimal(val.replace("D", "E")) for val in match.captures("pval")[::3]),
+        )
 
         yield Match(
             data=Dipole(match["orientation"], atom_orientation, moment, polarizability),
