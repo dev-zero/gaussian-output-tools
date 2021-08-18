@@ -30,7 +30,6 @@ def match_scf(
 
     for match in SCF_MATCH.finditer(content, start, end):
         kv = dict(zip(*match.captures("key", "value")))
-        print(kv["Conv"])
         res = SCF(
             type=match["type"],
             energy=Decimal(match["energy"].replace("D", "E")) * UREG.hartree,
