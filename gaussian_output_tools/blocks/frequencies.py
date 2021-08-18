@@ -38,7 +38,7 @@ class Frequencies:
     force_constants: List[Decimal]
     ir_intensities: List[Decimal]
     atomic_numbers: List[int]
-    names: List[str]
+    symmetries: List[str]
     normal_coords: npt.NDArray
 
 

@@ -62,7 +62,10 @@ def g16parse(fhandle, color, oformat):
     del step_ends[0]
     step_ends.append(len(content))
 
-    for step_start, step_end in zip(step_starts, step_ends):
+    for step_idx, (step_start, step_end) in enumerate(zip(step_starts, step_ends)):
+        if oformat == "objects":
+            console.rule(f"[bold red]STEP {step_idx}")
+
         for match in chain(
             match_scf(content, step_start, step_end),
             match_moments(content, step_start, step_end),
