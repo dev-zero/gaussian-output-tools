@@ -92,7 +92,7 @@ def match_dipole(
         )
         polarizability = Polarizability(
             *(
-                Decimal(val.replace("D", "E")) * UREG.bohr ** 3 * UREG.angstrom ** 3
+                Decimal(val.replace("D", "E")) * UREG.bohr ** 3
                 for val in match.captures("pval")[::3]
             ),
         )
