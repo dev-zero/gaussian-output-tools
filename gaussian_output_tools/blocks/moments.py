@@ -16,39 +16,94 @@ MOMENT_MATCH = re.compile(
     re.VERBOSE | re.MULTILINE,
 )
 
+@dataclass
+class DipoleMoment:
+    tot: Decimal
+    x: Decimal
+    y: Decimal
+    z: Decimal
+
 
 @dataclass
-class Moment:
-    type: str
-    unit: str
-    notes: str
-    vals: Dict[str, Decimal]
+class QuadrupoleMoment:
+    xx: Decimal
+    yy: Decimal
+    zz: Decimal
+    xy: Decimal
+    xz: Decimal
+    yz: Decimal
+
+
+@dataclass
+class OctapoleMoment:
+    xxx: Decimal
+    yyy: Decimal
+    zzz: Decimal
+    xyy: Decimal
+    xxy: Decimal
+    xxz: Decimal
+    xzz: Decimal
+    yzz: Decimal
+    yyz: Decimal
+    xyz: Decimal
+
+
+@dataclass
+class HexadecapoleMoment:
+    xxxx: Decimal
+    yyyy: Decimal
+    zzzz: Decimal
+    xxxy: Decimal
+    xxxz: Decimal
+    yyyx: Decimal
+    yyyz: Decimal
+    zzzx: Decimal
+    zzzy: Decimal
+    xxyy: Decimal
+    xxzz: Decimal
+    yyzz: Decimal
+    xxyz: Decimal
+    yyxz: Decimal
+    zzxy: Decimal
+
+
+@dataclass
+class Moments:
+    dipole: DipoleMoment
+    quadrupole: QuadrupoleMoment
+    octopole: OctapoleMoment
+    hexadecadpole: HexadecapoleMoment
 
 
 def match_moments(
     content: str, start: Optional[int] = None, end: Optional[int] = None
 ) -> Iterator[Match]:
+    spans = []
+
+    def _unpack(match, unit):
+        return {k.lower(): Decimal(v) * unit for k, v in zip(*match.captures("key", "val"))}
+
+    moment_type = ""
+
     for match in MOMENT_MATCH.finditer(content, start, end):
         moment_type = match["type"]
         if moment_type == "Dipole":
-            unit = UREG.debye
+            dipole = DipoleMoment(**_unpack(match, UREG.debye))
         elif "Quadrupole" in moment_type:
-            unit = UREG.debye * UREG.angstrom
+            quadrupole = QuadrupoleMoment(**_unpack(match, UREG.debye*UREG.angstrom))
         elif moment_type == "Octapole":
-            unit = UREG.debye * UREG.angstrom ** 2
+            octapole = OctapoleMoment(**_unpack(match, UREG.debye*UREG.angstrom**2))
         elif moment_type == "Hexadecapole":
-            unit = UREG.debye * UREG.angstrom ** 3
+            hexadecapole = HexadecapoleMoment(**_unpack(match, UREG.debye*UREG.angstrom**3))
         else:
-            raise AssertionError(f"unsupported momen type: {moment_type}")
+            raise AssertionError(f"unsupported moment type: {moment_type}")
 
-        yield Match(
-            data=Moment(
-                type=moment_type,
-                unit=match["unit"],
-                notes=match["notes"],
-                vals={
-                    k: Decimal(v) * unit for k, v in zip(*match.captures("key", "val"))
-                },
-            ),
-            spans=match.spans(),
-        )
+        spans += match.spans()
+
+    if not moment_type:
+        return
+
+    yield Match(
+        data=Moments(dipole, quadrupole, octapole, hexadecapole),
+        spans=spans
+    )
