@@ -12,7 +12,7 @@ from .blocks.moments import match_moments
 from .blocks.parameters import match_parameters
 from .blocks.scf import match_scf
 
-STEP_MATCH = re.compile(r"^ -+\n #(?P<settings>.+)\n -+\n", re.MULTILINE)
+STEP_MATCH = re.compile(r"^ -+\n #(?P<settings>.+?)\n -+\n", re.MULTILINE | re.DOTALL)
 
 
 class FortranNumberHighlighter(RegexHighlighter):
@@ -55,16 +55,18 @@ def g16parse(fhandle, color, oformat):
     spans = []
 
     for match in STEP_MATCH.finditer(content):
-        step_configs.append(match["settings"])
+        step_configs.append(match["settings"].replace("\n ", ""))
         step_ends.append(match.span()[0])
         step_starts.append(match.span()[1] + 1)
         spans.append(match.span())
     del step_ends[0]
     step_ends.append(len(content))
 
-    for step_idx, (step_start, step_end) in enumerate(zip(step_starts, step_ends)):
+    for step_idx, (step_config, step_start, step_end) in enumerate(
+        zip(step_configs, step_starts, step_ends)
+    ):
         if oformat == "objects":
-            console.rule(f"[bold red]STEP {step_idx}")
+            console.rule(f"[bold red]STEP {step_idx}: {step_config}")
 
         for match in chain(
             match_scf(content, step_start, step_end),

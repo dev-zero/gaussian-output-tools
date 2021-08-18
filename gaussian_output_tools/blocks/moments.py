@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, Iterator, Optional
+from typing import Iterator, Optional
 
 import regex as re
 
@@ -15,6 +15,7 @@ MOMENT_MATCH = re.compile(
 """,
     re.VERBOSE | re.MULTILINE,
 )
+
 
 @dataclass
 class DipoleMoment:
@@ -72,7 +73,7 @@ class Moments:
     dipole: DipoleMoment
     quadrupole: QuadrupoleMoment
     octopole: OctapoleMoment
-    hexadecadpole: HexadecapoleMoment
+    hexadecapole: HexadecapoleMoment
 
 
 def match_moments(
@@ -81,7 +82,9 @@ def match_moments(
     spans = []
 
     def _unpack(match, unit):
-        return {k.lower(): Decimal(v) * unit for k, v in zip(*match.captures("key", "val"))}
+        return {
+            k.lower(): Decimal(v) * unit for k, v in zip(*match.captures("key", "val"))
+        }
 
     moment_type = ""
 
@@ -90,11 +93,13 @@ def match_moments(
         if moment_type == "Dipole":
             dipole = DipoleMoment(**_unpack(match, UREG.debye))
         elif "Quadrupole" in moment_type:
-            quadrupole = QuadrupoleMoment(**_unpack(match, UREG.debye*UREG.angstrom))
+            quadrupole = QuadrupoleMoment(**_unpack(match, UREG.debye * UREG.angstrom))
         elif moment_type == "Octapole":
-            octapole = OctapoleMoment(**_unpack(match, UREG.debye*UREG.angstrom**2))
+            octapole = OctapoleMoment(**_unpack(match, UREG.debye * UREG.angstrom ** 2))
         elif moment_type == "Hexadecapole":
-            hexadecapole = HexadecapoleMoment(**_unpack(match, UREG.debye*UREG.angstrom**3))
+            hexadecapole = HexadecapoleMoment(
+                **_unpack(match, UREG.debye * UREG.angstrom ** 3)
+            )
         else:
             raise AssertionError(f"unsupported moment type: {moment_type}")
 
@@ -103,7 +108,4 @@ def match_moments(
     if not moment_type:
         return
 
-    yield Match(
-        data=Moments(dipole, quadrupole, octapole, hexadecapole),
-        spans=spans
-    )
+    yield Match(data=Moments(dipole, quadrupole, octapole, hexadecapole), spans=spans)
