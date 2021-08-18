@@ -11,6 +11,7 @@ regex = "^2021"
 click = "^7"
 numpy = "^1.21.2"
 Pint = "^0.17"
+rich = "^10.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
