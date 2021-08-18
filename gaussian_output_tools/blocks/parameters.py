@@ -2,7 +2,7 @@ from __future__ import annotations  # will be default in Python 3.10
 
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Iterator, List, Optional, Tuple, Union
+from typing import Iterator, List, Optional, Tuple, Union, cast
 
 import regex as re
 
@@ -34,10 +34,14 @@ class ParameterEntry:
 
     @classmethod
     def from_match(
-        cls, name: str, definition: str, value: str, derivinfo: str
+        cls,
+        name: str,
+        definition: str,
+        value: str,
+        derivinfo: Union[str, Tuple[str, Decimal]],
     ) -> ParameterEntry:
         try:
-            deriv, val = derivinfo.split("=")
+            deriv, val = cast(str, derivinfo).split("=")
             derivinfo = (deriv.strip(), Decimal(val))
         except ValueError:
             pass

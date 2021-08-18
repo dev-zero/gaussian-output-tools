@@ -69,6 +69,7 @@ def match_dipole(
     content: str, start: Optional[int] = None, end: Optional[int] = None
 ) -> Iterator[Match]:
     for match in DIPOLE_MATCH.finditer(content, start, end):
+        atom_orientation: Optional[List[AtomCoords]] = None
 
         if match.captures("oval"):
             coord_len = len(match.captures("oval"))
@@ -82,8 +83,6 @@ def match_dipole(
                     ),
                 )
             ]
-        else:
-            atom_orientation = None
 
         moment = Moment(
             *(

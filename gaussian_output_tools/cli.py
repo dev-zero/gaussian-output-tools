@@ -8,6 +8,7 @@ from .blocks.dipole import match_dipole
 from .blocks.frequencies import match_frequencies
 from .blocks.moments import match_moments
 from .blocks.parameters import match_parameters
+from .blocks.scf import match_scf
 
 STEP_MATCH = re.compile(r"^ -+\n #(?P<settings>.+)\n -+\n", re.MULTILINE)
 
@@ -41,6 +42,7 @@ def g16parse(fhandle, color):
 
     for step_start, step_end in zip(step_starts, step_ends):
         for match in chain(
+            match_scf(content, step_start, step_end),
             match_moments(content, step_start, step_end),
             match_parameters(content, step_start, step_end),
             match_dipole(content, step_start, step_end),
