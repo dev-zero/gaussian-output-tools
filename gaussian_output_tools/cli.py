@@ -1,6 +1,7 @@
 import click
 from rich.console import Console
 from rich.highlighter import RegexHighlighter, ReprHighlighter
+from rich.markup import escape
 
 from .blocks import merged_spans
 from .parser import parse_iter
@@ -57,9 +58,12 @@ def g16parse(fhandle, color, oformat):
         ptr = 0
         for start, end in spans:
             console.print(
-                f"[dim]{content[ptr:start]}[/dim][bold]{content[start:end]}[/bold]",
+                (
+                    f"[dim]{escape(content[ptr:start])}[/]"
+                    f"[bold]{escape(content[start:end])}[/]"
+                ),
                 end="",
             )
             ptr = end
 
-        console.print(f"[dim]{content[ptr:]}[/dim]")
+        console.print(f"[dim]{escape(content[ptr:])}[/]")
