@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Iterator, Optional
+import sys
 
 import regex as re
 
@@ -77,7 +78,7 @@ class Moments:
 
 
 def match_moments(
-    content: str, start: Optional[int] = None, end: Optional[int] = None
+        content: str, start: int = 0, end: int = sys.maxsize
 ) -> Iterator[Match]:
     spans = []
 

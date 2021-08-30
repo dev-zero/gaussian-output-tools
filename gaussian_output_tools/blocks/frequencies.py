@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from math import ceil
 from typing import Iterator, List, Optional
+import sys
 
 import numpy as np
 import numpy.typing as npt
@@ -43,7 +44,7 @@ class Frequencies:
 
 
 def match_frequencies(
-    content: str, start: Optional[int] = None, end: Optional[int] = None
+        content: str, start: int = 0, end: int = sys.maxsize
 ) -> Iterator[Match]:
     for match in FREQUENCY_MATCH.finditer(content, start, end):
         natoms = max(int(n) for n in match.captures("idx"))

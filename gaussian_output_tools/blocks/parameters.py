@@ -3,6 +3,7 @@ from __future__ import annotations  # will be default in Python 3.10
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Iterator, List, Optional, Tuple, Union, cast
+import sys
 
 import regex as re
 
@@ -65,7 +66,7 @@ class Parameters:
 
 
 def match_parameters(
-    content: str, start: Optional[int] = None, end: Optional[int] = None
+        content: str, start: int = 0, end: int = sys.maxsize
 ) -> Iterator[Match]:
     for match in PARAMETERS_MATCH.finditer(content, start, end):
         yield Match(
