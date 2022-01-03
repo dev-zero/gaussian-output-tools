@@ -7,6 +7,7 @@ from .blocks import Match
 from .blocks.dipole import match_dipole
 from .blocks.frequencies import match_frequencies
 from .blocks.moments import match_moments
+from .blocks.orientation import match_orientation
 from .blocks.parameters import match_parameters
 from .blocks.scf import match_scf
 
@@ -40,6 +41,7 @@ def parse_iter(content: str) -> Iterator[Step]:
                 match_scf(content, step_start, step_end),
                 match_moments(content, step_start, step_end),
                 match_parameters(content, step_start, step_end),
+                match_orientation(content, step_start, step_end),
                 match_dipole(content, step_start, step_end),
                 match_frequencies(content, step_start, step_end),
             ),
