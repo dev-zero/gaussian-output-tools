@@ -1,8 +1,8 @@
+import sys
 from dataclasses import dataclass
 from decimal import Decimal
 from math import ceil
-from typing import Iterator, List, Optional
-import sys
+from typing import Iterator, List
 
 import numpy as np
 import numpy.typing as npt
@@ -12,7 +12,16 @@ from . import UREG, Match
 
 FREQUENCY_MATCH = re.compile(
     r"""
-^\ Harmonic\ frequencies [^:]+:\n
+^
+(?:
+  \ Low\ frequencies\ +---(?:\ +(?P<low_freq>\S+)){3,6} \n
+){1,2}
+(?:
+  [ \*]+ (?P<num_imag_freqs>\d+) \ imaginary\ frequencies\ \(negative\ Signs\) [ \*]+ \n
+)?
+\ Diagonal\ vibrational\ polarizability:\n
+(?:\ +(?P<diag_vib_pol>\S+)){3,6}\n
+\ Harmonic\ frequencies [^:]+:\n
 (?:
   (?:\ *(?P<colnr>\d+))+\n
   (?:\ *(?P<name>\S+))+\n
@@ -34,6 +43,7 @@ FREQUENCY_MATCH = re.compile(
 
 @dataclass
 class Frequencies:
+    low_freqs: List[Decimal]
     freqs: List[Decimal]
     red_masses: List[Decimal]
     force_constants: List[Decimal]
@@ -41,10 +51,11 @@ class Frequencies:
     atomic_numbers: List[int]
     symmetries: List[str]
     normal_coords: npt.NDArray
+    num_imag_freqs: int
 
 
 def match_frequencies(
-        content: str, start: int = 0, end: int = sys.maxsize
+    content: str, start: int = 0, end: int = sys.maxsize
 ) -> Iterator[Match]:
     for match in FREQUENCY_MATCH.finditer(content, start, end):
         natoms = max(int(n) for n in match.captures("idx"))
@@ -67,19 +78,25 @@ def match_frequencies(
 
         yield Match(
             data=Frequencies(
-                [Decimal(v) * UREG.cm ** -1 for v in match.captures("freq")],
-                [Decimal(v) * UREG.u for v in match.captures("mass")],
-                [
+                low_freqs=[
+                    Decimal(v) * UREG.cm**-1 for v in match.captures("low_freq")
+                ],
+                num_imag_freqs=int(match.group("num_imag_freqs"))
+                if match.group("num_imag_freqs")
+                else 0,
+                freqs=[Decimal(v) * UREG.cm**-1 for v in match.captures("freq")],
+                red_masses=[Decimal(v) * UREG.u for v in match.captures("mass")],
+                force_constants=[
                     Decimal(v) * UREG.millidyne / UREG.angstrom
                     for v in match.captures("frcc")
                 ],
-                [
+                ir_intensities=[
                     Decimal(v) * UREG.kilometer / UREG.mole
                     for v in match.captures("intens")
                 ],
-                [int(a) for a in match.captures("an")[:natoms]],
-                match.captures("name"),
-                normal_coords,
+                atomic_numbers=[int(a) for a in match.captures("an")[:natoms]],
+                symmetries=match.captures("name"),
+                normal_coords=normal_coords,
             ),
             spans=match.spans(),
         )
